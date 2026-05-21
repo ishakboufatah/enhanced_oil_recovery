@@ -1,0 +1,682 @@
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 36px 0 48px;
+}
+
+.section-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 14px 0 0;
+  background: linear-gradient(180deg, #e4f0ed 0%, rgba(228, 240, 237, 0.88) 72%, rgba(228, 240, 237, 0));
+}
+
+.section-tabs button {
+  border: 1px solid #bdd5d2;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: #28545b;
+  background: rgba(255, 255, 255, 0.72);
+  font-weight: 900;
+}
+
+.section-tabs button.active {
+  color: #ffffff;
+  border-color: #0f6b63;
+  background: #0f6b63;
+}
+
+.intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 26px;
+}
+
+.intro h1,
+.intro p,
+.chart-head h2,
+.chart-head p,
+.side-panel h2 {
+  margin: 0;
+}
+
+.intro h1 {
+  max-width: 820px;
+  margin-top: 8px;
+  color: #0f2630;
+  font-size: clamp(2.15rem, 5vw, 4.4rem);
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.intro p:not(.eyebrow) {
+  max-width: 760px;
+  margin-top: 18px;
+  color: #4e6470;
+  font-size: 1.04rem;
+}
+
+.eyebrow {
+  color: #14756f;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.method-chip {
+  flex: 0 0 auto;
+  border: 1px solid #bed8d5;
+  border-radius: 999px;
+  padding: 10px 16px;
+  color: #1f5856;
+  background: #f5fbfa;
+  font-weight: 800;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.chart-panel,
+.side-panel,
+.curve-panel,
+.metrics article,
+.pvt-output article,
+.composition-table {
+  border: 1px solid #dce5e4;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 18px 45px rgba(38, 56, 61, 0.08);
+}
+
+.chart-panel {
+  min-width: 0;
+  padding: 20px;
+}
+
+.chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 12px;
+}
+
+.chart-head h2,
+.panel-title h2,
+.side-panel h2 {
+  color: #17313a;
+  font-size: 1.2rem;
+}
+
+.chart-head p,
+.panel-title p {
+  margin-top: 4px;
+  color: #60747d;
+  font-size: 0.92rem;
+}
+
+.play-button {
+  min-width: 92px;
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 18px;
+  color: #ffffff;
+  background: #0f6b63;
+  font-weight: 800;
+}
+
+.play-button:hover {
+  background: #0a5751;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.plot-bg {
+  fill: #fbfdfc;
+  stroke: #cbdad8;
+}
+
+.grid-line {
+  stroke: #dfe9e7;
+  stroke-width: 1;
+}
+
+.axis-text,
+.axis-label,
+.legend,
+.time-badge {
+  fill: #50656f;
+  font-size: 14px;
+}
+
+.axis-label {
+  font-weight: 800;
+}
+
+.small {
+  font-size: 12px;
+}
+
+.vertical {
+  transform: rotate(-90deg);
+  transform-origin: 18px 210px;
+}
+
+.area {
+  fill: url(#waterFill);
+}
+
+.saturation-line {
+  fill: none;
+  stroke: #0b756b;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.fractional-flow {
+  fill: none;
+  stroke: #d1912b;
+  stroke-dasharray: 7 7;
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.shock-line {
+  stroke: #b74334;
+  stroke-dasharray: 5 5;
+  stroke-width: 2;
+}
+
+.legend {
+  font-weight: 800;
+}
+
+.legend.saturation {
+  fill: #0b756b;
+}
+
+.legend.fractional {
+  fill: #b56f15;
+}
+
+.time-badge {
+  fill: #17313a;
+  font-weight: 900;
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  color: #526872;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.curve-panel {
+  margin-top: 18px;
+  padding: 20px;
+}
+
+.panel-title h2,
+.panel-title p {
+  margin: 0;
+}
+
+.curve-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.mini-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.krw-line,
+.kro-line,
+.pc-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.krw-line {
+  stroke: #1b7f74;
+}
+
+.kro-line {
+  stroke: #b56f15;
+}
+
+.pc-line {
+  stroke: #6f5aa8;
+}
+
+.curve-label {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.curve-label.krw {
+  fill: #1b7f74;
+}
+
+.curve-label.kro {
+  fill: #b56f15;
+}
+
+.curve-label.pc {
+  fill: #6f5aa8;
+}
+
+.side-panel {
+  padding: 20px;
+}
+
+.control {
+  display: block;
+  margin-top: 18px;
+}
+
+.control span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #435a64;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.control strong {
+  color: #14313a;
+  white-space: nowrap;
+}
+
+input[type='range'] {
+  width: 100%;
+  accent-color: #0f756d;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.metrics article,
+.pvt-output article {
+  padding: 18px;
+}
+
+.metrics span,
+.pvt-output span {
+  display: block;
+  color: #61747b;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.metrics strong,
+.pvt-output strong {
+  display: block;
+  margin-top: 6px;
+  color: #112d35;
+  font-size: 1.45rem;
+}
+
+.pvt-workspace {
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.pvt-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.pvt-badges span {
+  border: 1px solid #d5e2df;
+  border-radius: 999px;
+  padding: 8px 11px;
+  color: #234a52;
+  background: #f7fbfa;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.ternary-chart {
+  display: block;
+  width: min(100%, 680px);
+  height: auto;
+  margin: 0 auto;
+}
+
+.ternary-bg {
+  fill: #fbfdfc;
+  stroke: #9cb9b5;
+  stroke-width: 2;
+}
+
+.ternary-grid {
+  stroke: #dbe8e5;
+  stroke-width: 1;
+}
+
+.two-phase-region {
+  fill: rgba(27, 117, 107, 0.11);
+  stroke: rgba(15, 107, 99, 0.55);
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.tie-line {
+  stroke: #b74334;
+  stroke-dasharray: 7 7;
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.tie-line.family {
+  opacity: 0.38;
+  stroke-width: 2;
+}
+
+.tie-line.selected {
+  opacity: 1;
+  stroke-width: 4;
+}
+
+.critical-tie-line {
+  stroke: #17313a;
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.phase-point {
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+
+.feed-point {
+  fill: #d1912b;
+}
+
+.liquid-point {
+  fill: #0b756b;
+}
+
+.vapor-point {
+  fill: #6f5aa8;
+}
+
+.ternary-label,
+.point-label {
+  fill: #264a52;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.point-label {
+  font-size: 14px;
+}
+
+.point-label.liquid {
+  fill: #0b756b;
+}
+
+.point-label.vapor {
+  fill: #6f5aa8;
+}
+
+.critical-label {
+  fill: #17313a;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.pressure-selector {
+  display: block;
+  margin-top: 16px;
+  border: 1px solid #d9e6e3;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f7fbfa;
+}
+
+.pressure-selector span,
+.pressure-selector div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pressure-selector span {
+  color: #17313a;
+  font-weight: 950;
+}
+
+.pressure-selector strong {
+  color: #0f6b63;
+}
+
+.pressure-selector div {
+  color: #687b82;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.pressure-selector input {
+  margin: 8px 0 3px;
+}
+
+.number-control,
+.composition-row {
+  display: grid;
+  grid-template-columns: 1fr 112px;
+  gap: 10px;
+  align-items: center;
+  color: #435a64;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.number-control {
+  margin-top: 16px;
+}
+
+.number-control div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.number-control strong {
+  color: #61747b;
+  font-size: 0.78rem;
+}
+
+.number-control input,
+.composition-row input {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid #cbdad8;
+  border-radius: 7px;
+  padding: 8px;
+  color: #17313a;
+  background: #fbfdfc;
+  font-weight: 800;
+}
+
+.composition-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 22px;
+  color: #17313a;
+  font-weight: 900;
+}
+
+.total-ok {
+  color: #0f6b63;
+}
+
+.total-warn {
+  color: #b74334;
+}
+
+.composition-grid {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.input-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.input-actions button {
+  border: 1px solid #bdd5d2;
+  border-radius: 8px;
+  padding: 10px;
+  color: #16464c;
+  background: #f7fbfa;
+  font-weight: 900;
+}
+
+.pvt-output {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.pvt-output strong {
+  font-size: 1.12rem;
+}
+
+.composition-table {
+  margin-top: 18px;
+  overflow: hidden;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1.1fr repeat(4, 1fr);
+  gap: 10px;
+  padding: 10px 16px;
+  border-top: 1px solid #e6eeee;
+  color: #435a64;
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.table-row:first-child {
+  border-top: 0;
+}
+
+.table-row span:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.table-head {
+  color: #17313a;
+  background: #f4faf8;
+  font-weight: 950;
+}
+
+@media (max-width: 960px) {
+  .intro,
+  .chart-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .workspace,
+  .curve-grid,
+  .metrics,
+  .pvt-output {
+    grid-template-columns: 1fr;
+  }
+
+  .play-button,
+  .pvt-badges {
+    width: 100%;
+  }
+
+  .pvt-badges {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-shell {
+    width: min(100% - 20px, 1180px);
+    padding-top: 20px;
+  }
+
+  .chart-panel,
+  .side-panel,
+  .curve-panel,
+  .metrics article,
+  .pvt-output article {
+    padding: 14px;
+  }
+
+  .timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .method-chip {
+    align-self: stretch;
+    text-align: center;
+  }
+
+  .section-tabs {
+    width: min(100% - 20px, 1180px);
+  }
+
+  .number-control,
+  .composition-row,
+  .table-row {
+    grid-template-columns: 1fr;
+  }
+
+  .table-row span:not(:first-child) {
+    text-align: left;
+  }
+}
