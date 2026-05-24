@@ -273,38 +273,98 @@ function componentFeedFromTernary(target, baseZi) {
   )
 }
 
+function clusterBoundary(points, selector, bins = 34) {
+  if (points.length <= 3) return points
+  const buckets = Array.from({ length: bins }, () => [])
+
+  points.forEach((point) => {
+    const key = clamp(selector(point), 0, 0.999999)
+    buckets[Math.floor(key * bins)].push(point)
+  })
+
+  const clustered = buckets
+    .filter((bucket) => bucket.length > 0)
+    .map((bucket) => {
+      const total = bucket.length
+      return {
+        light: sum(bucket.map((point) => point.light)) / total,
+        intermediate: sum(bucket.map((point) => point.intermediate)) / total,
+        heavy: sum(bucket.map((point) => point.heavy)) / total,
+      }
+    })
+
+  return clustered
+}
+
+function resampleMatchedTieLines(tieLines, count = 22) {
+  if (tieLines.length <= count) return tieLines
+  const ternaryPlotX = (point) => point.intermediate + 0.5 * point.light
+  const ordered = tieLines
+    .slice()
+    .sort((left, right) => ternaryPlotX(left.liquid) - ternaryPlotX(right.liquid))
+  const minX = ternaryPlotX(ordered[0].liquid)
+  const maxX = ternaryPlotX(ordered[ordered.length - 1].liquid)
+  const selected = []
+  const used = new Set()
+
+  for (let index = 0; index < count; index += 1) {
+    const targetX = minX + ((maxX - minX) * index) / (count - 1)
+    let bestIndex = -1
+    let bestDistance = Number.POSITIVE_INFINITY
+
+    ordered.forEach((tieLine, tieLineIndex) => {
+      if (used.has(tieLineIndex)) return
+      const distance = Math.abs(ternaryPlotX(tieLine.liquid) - targetX)
+      if (distance < bestDistance) {
+        bestDistance = distance
+        bestIndex = tieLineIndex
+      }
+    })
+
+    if (bestIndex >= 0) {
+      selected.push(ordered[bestIndex])
+      used.add(bestIndex)
+    }
+  }
+
+  return selected.sort((left, right) => ternaryPlotX(left.liquid) - ternaryPlotX(right.liquid))
+}
+
 function buildTieLineFamily(feedZi, pressure, temperature) {
-  const feedTernary = reduceToTernary(normalize(feedZi))
-  const targets = [
-    { light: 0.2, intermediate: 0.34, heavy: 0.46 },
-    { light: 0.28, intermediate: 0.36, heavy: 0.36 },
-    { light: 0.36, intermediate: 0.34, heavy: 0.3 },
-    feedTernary,
-    { light: 0.5, intermediate: 0.3, heavy: 0.2 },
-    { light: 0.62, intermediate: 0.24, heavy: 0.14 },
-    { light: 0.74, intermediate: 0.18, heavy: 0.08 },
-    { light: 0.84, intermediate: 0.12, heavy: 0.04 },
-  ]
+  const gridDivisions = 28
+  const targets = []
+
+  for (let lightIndex = 0; lightIndex <= gridDivisions; lightIndex += 1) {
+    for (let intermediateIndex = 0; intermediateIndex <= gridDivisions - lightIndex; intermediateIndex += 1) {
+      const light = lightIndex / gridDivisions
+      const intermediate = intermediateIndex / gridDivisions
+      const heavy = 1 - light - intermediate
+      if (light >= 0.02 && heavy >= 0.02) targets.push({ light, intermediate, heavy })
+    }
+  }
 
   const tieLines = targets
     .map((target) => buildPvtFlash(componentFeedFromTernary(target, feedZi), pressure, temperature))
-    .filter((flash) => flash.vaporFraction > 0.01 && flash.vaporFraction < 0.99)
+    .filter((flash) => flash.vaporFraction > 0.002 && flash.vaporFraction < 0.998)
     .map((flash) => ({
       liquid: flash.ternary.liquid,
       vapor: flash.ternary.vapor,
       feed: flash.ternary.feed,
       length: ternaryDistance(flash.ternary.liquid, flash.ternary.vapor),
     }))
-    .filter((tieLine) => tieLine.length > 0.015)
-    .sort((left, right) => left.feed.light - right.feed.light)
+    .filter((tieLine) => tieLine.length > 0.006)
+    .sort((left, right) => left.feed.light - right.feed.light || left.feed.intermediate - right.feed.intermediate)
 
   const criticalTieLine = tieLines.reduce(
     (best, tieLine) => (!best || tieLine.length < best.length ? tieLine : best),
     null,
   )
-  const region = tieLines.length >= 2 ? [...tieLines.map((line) => line.liquid), ...tieLines.map((line) => line.vapor).reverse()] : []
+  const liquidBoundary = clusterBoundary(tieLines.map((line) => line.liquid), (point) => point.intermediate)
+  const vaporBoundary = clusterBoundary(tieLines.map((line) => line.vapor), (point) => point.light)
+  const region = tieLines.length >= 2 ? [...liquidBoundary, ...vaporBoundary.slice().reverse()] : []
+  const displayedTieLines = resampleMatchedTieLines(tieLines)
 
-  return { tieLines, criticalTieLine, region }
+  return { tieLines: displayedTieLines, criticalTieLine, liquidBoundary, vaporBoundary, region, totalTieLines: tieLines.length }
 }
 
 function estimateDewPointPressure(feedZi, temperatureF, maxPressure) {
@@ -555,6 +615,28 @@ function TernaryDiagram({ ternary, envelope, isTwoPhase }) {
   const vapor = toXY(ternary.vapor)
   const regionPoints = envelope.region.map(toXY)
   const criticalTieLine = envelope.criticalTieLine
+  const smoothPath = (points) => {
+    if (points.length === 0) return ''
+    if (points.length === 1) return `M ${points[0].x} ${points[0].y}`
+    const commands = [`M ${points[0].x} ${points[0].y}`]
+    for (let index = 1; index < points.length - 1; index += 1) {
+      const mid = {
+        x: (points[index].x + points[index + 1].x) / 2,
+        y: (points[index].y + points[index + 1].y) / 2,
+      }
+      commands.push(`Q ${points[index].x} ${points[index].y} ${mid.x} ${mid.y}`)
+    }
+    const last = points[points.length - 1]
+    commands.push(`L ${last.x} ${last.y}`)
+    return commands.join(' ')
+  }
+  const smoothPolygon = (points) => {
+    if (points.length < 3) return ''
+    return `${smoothPath(points)} Z`
+  }
+  const liquidBoundaryPath = smoothPath(envelope.liquidBoundary.map(toXY))
+  const vaporBoundaryPath = smoothPath(envelope.vaporBoundary.map(toXY))
+  const regionPath = smoothPolygon(regionPoints)
   const ticks = [0.2, 0.4, 0.6, 0.8]
 
   return (
@@ -575,7 +657,8 @@ function TernaryDiagram({ ternary, envelope, isTwoPhase }) {
           </g>
         )
       })}
-      {regionPoints.length > 2 && <polygon className="two-phase-region" points={regionPoints.map((point) => `${point.x},${point.y}`).join(' ')} />}
+      {liquidBoundaryPath && <path className="binodal liquid-binodal" d={liquidBoundaryPath} />}
+      {vaporBoundaryPath && <path className="binodal vapor-binodal" d={vaporBoundaryPath} />}
       {envelope.tieLines.map((tieLine, index) => {
         const start = toXY(tieLine.liquid)
         const end = toXY(tieLine.vapor)
@@ -588,7 +671,8 @@ function TernaryDiagram({ ternary, envelope, isTwoPhase }) {
         return (
           <g>
             <line className="critical-tie-line" x1={start.x} y1={start.y} x2={end.x} y2={end.y} />
-            <text className="critical-label" x={mid.x + 10} y={mid.y - 8}>Critical tie-line</text>
+            <circle className="plait-point" cx={mid.x} cy={mid.y} r="5" />
+            <text className="critical-label" x={mid.x + 10} y={mid.y - 8}>Plait point</text>
           </g>
         )
       })()}
@@ -849,7 +933,7 @@ function TernaryPvtSection() {
               <span>{formatDewPoint(dewPointPressure)}</span>
               <span>{phaseState(flash.vaporFraction)}</span>
               <span>V = {flash.vaporFraction.toFixed(3)}</span>
-              <span>{envelope.tieLines.length} tie-lines</span>
+              <span>{envelope.totalTieLines} tie-lines</span>
               <span>{flash.iterations} EOS loops</span>
             </div>
           </div>

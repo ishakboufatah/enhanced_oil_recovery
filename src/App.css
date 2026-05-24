@@ -394,9 +394,22 @@ input[type='range'] {
 
 .two-phase-region {
   fill: rgba(27, 117, 107, 0.11);
-  stroke: rgba(15, 107, 99, 0.55);
+  stroke: none;
+}
+
+.binodal {
+  fill: none;
+  stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 2;
+  stroke-width: 2.6;
+}
+
+.liquid-binodal {
+  stroke: #186f68;
+}
+
+.vapor-binodal {
+  stroke: #c74434;
 }
 
 .tie-line {
@@ -419,7 +432,13 @@ input[type='range'] {
 .critical-tie-line {
   stroke: #17313a;
   stroke-linecap: round;
-  stroke-width: 4;
+  stroke-width: 3;
+}
+
+.plait-point {
+  fill: #17313a;
+  stroke: #ffffff;
+  stroke-width: 2;
 }
 
 .phase-point {
